@@ -13,7 +13,7 @@ from .models import *
 """
 Доступные действия:
 1. Модель Posts -- 
-1.0   Получить информацию обо всех должностях
+1.0.0   Получить информацию обо всех должностях
 1.1   Добавить новую должность
 1.2   Обновить название для должности
 1.3   Удалить должность
@@ -42,9 +42,6 @@ from .models import *
 4.0.1 Получить информацию об одном отделе                           (dep_id)
 4.1   Добавить новый отдел
 4.2   Обновить информацию об отделе
-4.2.1 Обновить код подразделения
-4.2.2 Обновить описание подразделения
-4.2.3 Обновить руководителя
 4.2.4 Обновить статус подразделения (сделать проверку, что оно пустое)
 4.3   Удалить отдел
 
@@ -60,7 +57,7 @@ from .models import *
 6.0.0 Получить информацию обо всех начальниках
 6.0.1 Получить информацию обо всех подчиненных одного начальника    (chef_id)
 6.0.2 Получить информацию о начальнике одного сотрудника            (usr_id)
-6.1   Добавить подчинённого (сделать проверку, что подчинённый не станет начальником своего начальника)
+6.1   Добавить подчинённого (#TODO: сделать проверку, что подчинённый не станет начальником своего начальника)
 6.2   Сменить начальника:
 6.2.1 Сменить начальника одному пользователю
 6.2.2 Сменить начальника всем, у кого был этот начальник
@@ -92,7 +89,7 @@ class EmployeesAPIView(APIView):
             return Response({"type": "-1", "description": "unknown request"})
         m_request = request.data
         match m_request["type"]:
-            case "1.0":
+            case "1.0.0":
                 return(Response({
                     "type": "1.0", 
                     "description":  "get_posts", 
@@ -108,12 +105,12 @@ class EmployeesAPIView(APIView):
                     return(Response({
                         "type": "2.0.1",
                         "description": "get_one_user_info",
-                        "response": Users.objects.filter(usr_id = m_request["usr_id"]).values()
+                        "response": Users.objects.filter(usr_id = m_request["request"]["usr_id"]).values()
                     }))
                 else:
                     return(Response({
                         "type": "-2",
-                        "description": "usr_id is not specified"
+                        "description": "usr is not specified"
                     }))
             
             case "3.0.0":
@@ -123,7 +120,7 @@ class EmployeesAPIView(APIView):
                     "response": Contacts.objects.all().values()}))
             case "3.0.1":
                 if "usr_id" in m_request:
-                    contacts_list = Contacts.objects.filter(usr_id = m_request['usr_id']).values()
+                    contacts_list = Contacts.objects.filter(usr = m_request["request"]['usr_id']).values()
                     return(Response({
                         "type": "3.0.1", 
                         "description": "get_one_user_contact",
@@ -131,7 +128,7 @@ class EmployeesAPIView(APIView):
                 else:
                     return(Response({
                         "type": "-2",
-                        "description": "usr_id is not specified"}))
+                        "description": "usr is not specified"}))
             
             case "4.0.0":
                 return(Response({
@@ -140,7 +137,7 @@ class EmployeesAPIView(APIView):
                     "response": Departments.objects.all().values()}))
             case "4.0.1":
                 if "dep_id" in m_request:
-                    departments_list = Departments.objects.filter(dep_id = m_request['dep_id']).values()
+                    departments_list = Departments.objects.filter(dep = m_request["request"]['dep_id']).values()
                     return(Response({
                         "type": "3.0.1", 
                         "description": "get_one_departments_info",
@@ -148,7 +145,7 @@ class EmployeesAPIView(APIView):
                 else:
                     return(Response({
                         "type": "-2",
-                        "description": "dep_id is not specified"}))         
+                        "description": "dep is not specified"}))         
             
             case "5.0.0": 
                 return(Response({
@@ -157,7 +154,7 @@ class EmployeesAPIView(APIView):
                     "response": Usr_Dep.objects.all().values()}))
             case "5.0.1":
                 if "dep_id" in m_request:
-                    usr_dep_list = Usr_Dep.objects.filter(dep_id = m_request['dep_id']).values()
+                    usr_dep_list = Usr_Dep.objects.filter(dep = m_request["request"]['dep_id']).values()
                     return (Response({
                         "type": "5.0.1", 
                         "description": "get_one_usr_dep_info",
@@ -165,10 +162,10 @@ class EmployeesAPIView(APIView):
                 else:
                     return(Response({
                         "type": "-2",
-                        "description": "dep_id is not specified"}))
+                        "description": "dep is not specified"}))
             case "5.0.2":
                 if "usr_id" in m_request:
-                    usr_dep = Usr_Dep.objects.filter(usr_id = m_request["usr_id"]).values()
+                    usr_dep = Usr_Dep.objects.filter(usr = m_request["request"]["usr"]).values()
                     return (Response({
                         "type": "5.0.2", 
                         "description": "get_one_usr_info",
@@ -176,7 +173,7 @@ class EmployeesAPIView(APIView):
                 else:
                     return(Response({
                         "type": "-2",
-                        "description": "usr_id is not specified"}))
+                        "description": "usr is not specified"}))
             
             case "6.0.0":
                 return Response({
@@ -186,7 +183,7 @@ class EmployeesAPIView(APIView):
                 })
             case "6.0.1":
                 if "chef_id" in m_request:
-                    chef_list = Emp_Chef.objects.filter(chef_id = m_request["chef_id"]).values()
+                    chef_list = Emp_Chef.objects.filter(chef = m_request["request"]["chef"]).values()
                     return (Response({
                         "type": "6.0.1", 
                         "description": "get_one_chef_info",
@@ -194,10 +191,10 @@ class EmployeesAPIView(APIView):
                 else:
                     return(Response({
                         "type": "-2",
-                        "description": "chef_id is not specified"}))
+                        "description": "chef is not specified"}))
             case "6.0.2":
                 if "usr_id" in m_request:
-                    chef = Emp_Chef.objects.filter(usr_id = m_request["usr_id"]).values()
+                    chef = Emp_Chef.objects.filter(usr = m_request["request"]["usr"]).values()
                     return (Response({
                         "type": "6.0.2", 
                         "description": "get_one_chef_info",
@@ -205,7 +202,7 @@ class EmployeesAPIView(APIView):
                 else:
                     return(Response({
                         "type": "-2",
-                        "description": "usr_id is not specified"}))
+                        "description": "usr is not specified"}))
             
             case "7.0.0":
                 return Response({
@@ -215,7 +212,7 @@ class EmployeesAPIView(APIView):
                 })
             case "7.0.1":
                 if "dir_id" in m_request:
-                    deps_list = Dep_Director.objects.filter(dir_id = m_request["dir_id"]).values()
+                    deps_list = Dep_Director.objects.filter(dir = m_request["request"]["dir"]).values()
                     return (Response({
                         "type": "7.0.1", 
                         "description": "get_one_dir_info",
@@ -223,10 +220,10 @@ class EmployeesAPIView(APIView):
                 else:
                     return(Response({
                         "type": "-2",
-                        "description": "dir_id is not specified"}))
+                        "description": "dir is not specified"}))
             case "7.0.2":
                 if "dep_id" in m_request:
-                    dep = Dep_Director.objects.filter(dep_id = m_request["dep_id"]).values()
+                    dep = Dep_Director.objects.filter(dep = m_request["request"]["dep_id"]).values()
                     return (Response({
                         "type": "7.0.2", 
                         "description": "get_one_dep_dir_info",
@@ -234,11 +231,11 @@ class EmployeesAPIView(APIView):
                 else:
                     return(Response({
                         "type": "-2",
-                        "description": "dep_id is not specified"}))
+                        "description": "dep is not specified"}))
 
         return Response({"type": "-1", "description": "unknown request"})
 
-    def post(self, request):    # Добавление сотрудника в отдел
+    def post(self, request):   
         # Здесь будет реализовано: [1-7].1.*
         m_request = request.data
         if "type" not in m_request or "request" not in m_request:
@@ -288,16 +285,88 @@ class EmployeesAPIView(APIView):
             return Response({"type": "-2", "description": "type or request are not specified"})
         match m_request["type"]:
             case "1.2":
-                pass
+                if "post" not in m_request["request"]:
+                    return Response({"type": "-2", "description": "post is not specified"}) 
+                try:
+                    instance = Posts.objects.get(post = m_request["request"]["post"])
+                except:
+                    return Response({"type": "-3", "description": "Such row does not exist"})
+                serializer = Posts_Serializer(data = m_request["request"], instance=instance)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({"type": "1.2", "response": serializer.data})
+            case "2.2":
+                if "usr" not in m_request["request"]:
+                    return Response({"type": "-2", "description": "usr is not specified"})
+                try:
+                    instance = Users.objects.get(usr = m_request["request"]["usr"])
+                except:
+                    return Response({"type": "-3", "description": "Such row does not exist"})
+                serializer = Users_Serializer(data = m_request["request"], instance=instance)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({"type": "2.2", "response": serializer.data})
+
+            case "3.2":
+                if "contact" not in m_request["request"]:
+                    return Response({"type": "-2", "description": "contact is not specified"})
+                try:
+                    instance = Contacts.objects.get(contact = m_request["request"]["contact"])
+                except:
+                    return Response({"type": "-3", "description": "Such row does not exist"})
+                serializer = Contacts_Serializer(data = m_request["request"], instance=instance)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({"type": "3.2", "response": serializer.data})
+
+            case "4.2":
+                if "dep" not in m_request["request"]:
+                    return Response({"type": "-2", "description": "dep is not specified"})
+                try:
+                    instance = Departments.objects.get(dep = m_request["request"]["dep"])
+                except:
+                    return Response({"type": "-3", "description": "Such row does not exist"})
+                serializer = Departments_Serializer(data = m_request["request"], instance=instance)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({"type": "4.2", "response": serializer.data})
+
             case "5.2":
+                if "usr" not in m_request["request"]:
+                    return Response({"type": "-2", "description": "usr is not specified"})
                 try:
                     instance = Usr_Dep.objects.get(usr = m_request["request"]["usr"])
                 except:
                     return Response({"type": "-3", "description": "Such row does not exist"})
                 serializer = Usr_Dep_Serializer(data = m_request["request"], instance=instance)
-                serializer.is_valid()
+                serializer.is_valid(raise_exception=True)
                 serializer.save()
                 return Response({"type": "5.2", "response": serializer.data})
+            
+            case "6.2":
+                if "chef" not in m_request["request"] and "usr" not in m_request["request"]:
+                    return Response({"type": "-2", "description": "chef or usr is not specified"})
+                try:
+                    instance = Emp_Chef.objects.get(usr = m_request["request"]["usr"])
+                except:
+                    return Response({"type": "-3", "description": "Such row does not exist"})
+                serializer = Emp_Chef_Serializer(data = m_request["request"], instance=instance)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({"type": "6.2", "response": serializer.data})
+
+            case "7.2":
+                if "dir" not in m_request["request"] and "dep" not in m_request["request"]:
+                    return Response({"type": "-2", "description": "dir or dep is not specified"})
+                try:
+                    instance = Dep_Director.objects.get(usr = m_request["request"]["usr"])
+                except:
+                    return Response({"type": "-3", "description": "Such row does not exist"})
+                serializer = Dep_Director_Serializer(data = m_request["request"], instance=instance)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({"type": "7.2", "response": serializer.data})
+
         return Response({"type": "-1", "description": "unknown request"})
 
     def delete(self, request):  
