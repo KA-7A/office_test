@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import Usr_Dep_Serializer
+from .serializers import *
 import json
 
 from .models import *
@@ -81,18 +81,16 @@ from .models import *
 Ошибки:
 -1 -- неизвестный запрос
 -2 -- некорректный запрос, не хватает поля
+-3 -- указанная строка не найдена
 
 """
-"""
-Мои замечания:
-Почему-то, при запросе, у некоторых полей появляется дополнительная подстрока _id в конце. 
-Это очень сильно напрягает, если честно
 
-"""
 class EmployeesAPIView(APIView):
     def get(self, request):     
         # Здесь будет реализовано: [1-7].0.*
-        m_request = json.loads(request.body.decode('utf-8'))
+        if "type" not in request.data:
+            return Response({"type": "-1", "description": "unknown request"})
+        m_request = request.data
         match m_request["type"]:
             case "1.0":
                 return(Response({
@@ -242,15 +240,69 @@ class EmployeesAPIView(APIView):
 
     def post(self, request):    # Добавление сотрудника в отдел
         # Здесь будет реализовано: [1-7].1.*
-        return Response({'1': '2'})
+        m_request = request.data
+        if "type" not in m_request or "request" not in m_request:
+            return Response({"type": "-2", "description": "type or request are not specified"})
+        match m_request["type"]:
+            case "1.1":
+                serializer = Posts_Serializer(data=m_request["request"])
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({"type": "1.1","response": serializer.data})
+            case "2.1":
+                serializer = Users_Serializer(data=m_request["request"])
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({"type": "2.1","response": serializer.data})
+            case "3.1":
+                serializer = Contacts_Serializer(data=m_request["request"])
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({"type": "3.1", "response": serializer.data})
+            case "4.1":
+                serializer = Departments_Serializer(data=m_request["request"])
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({"type": "4.1", "response": serializer.data})
+            case "5.1":
+                serializer = Usr_Dep_Serializer(data = m_request["request"])
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({"type": "5.1", "response": serializer.data})
+            case "6.1":
+                serializer = Emp_Chef_Serializer(data=m_request["request"])
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({"type": "6.1", "response": serializer.data})
+            case "7.1":
+                serializer = Dep_Director_Serializer(data=m_request["request"])
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({"type": "7.1", "response": serializer.data})
+        return Response({"type": "-1", "description": "unknown request"})
     
     def put(self, request):     
         # Здесь будет реализовано: [1-7].2.*
-        return Response({'3' : '4'})
+        m_request = request.data
+        if "type" not in m_request or "request" not in m_request:
+            return Response({"type": "-2", "description": "type or request are not specified"})
+        match m_request["type"]:
+            case "1.2":
+                pass
+            case "5.2":
+                try:
+                    instance = Usr_Dep.objects.get(usr = m_request["request"]["usr"])
+                except:
+                    return Response({"type": "-3", "description": "Such row does not exist"})
+                serializer = Usr_Dep_Serializer(data = m_request["request"], instance=instance)
+                serializer.is_valid()
+                serializer.save()
+                return Response({"type": "5.2", "response": serializer.data})
+        return Response({"type": "-1", "description": "unknown request"})
 
     def delete(self, request):  
         # Здесь будет реализовано: [1-7].3.*
-        return Response({'br': 'aaaa'})
+        return Response({"type": "-1", "description": "unknown request"})
 
 
 
