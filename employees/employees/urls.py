@@ -19,5 +19,5 @@ from employees_app.views import EmployeesAPIView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/usr_dep_list', EmployeesAPIView.as_view())
+    path('api/v1/employees', EmployeesAPIView.as_view())
 ]
