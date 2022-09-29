@@ -1,11 +1,10 @@
 [tool.poetry]
-name = "office-test"
+name = "employees"
 version = "0.0.1"
 description = "Пытаемся разобраться с Poetry, Django и DRF в рамках тестовой задачи для офиса"
 authors = ["Your Name <you@example.com>"]
 license = "Apache 2.0"
-readme = "README.md"
-packages = [{include = "office_test"}]
+packages = [{include = "employees"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
