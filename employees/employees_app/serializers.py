@@ -5,9 +5,9 @@ from rest_framework import serializers
 from .models import *
 import datetime
 
-class Posts_Serializer(serializers.ModelSerializer):
+class Positions_Serializer(serializers.ModelSerializer):
     class Meta:
-        model = Posts
+        model = Positions
         fields = "__all__"
 
 class Users_Serializer(serializers.ModelSerializer):

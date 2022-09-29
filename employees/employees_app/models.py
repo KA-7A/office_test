@@ -2,24 +2,25 @@ from pyexpat import model
 from re import RegexFlag
 import re
 from statistics import mode
+from turtle import position
 from wsgiref.validate import validator
 from django.db import models
 
 from django.core.exceptions import ValidationError
 
 
-class Posts(models.Model): # Модель с должностями
-    post    = models.AutoField(primary_key=True, editable=False)
-    post_descr = models.CharField(unique=True, max_length=128, db_index=True, default='new')
+class Positions(models.Model): # Модель с должностями
+    position    = models.AutoField(primary_key=True, editable=False)
+    description = models.CharField(unique=True, max_length=128, db_index=True, default='new')
 
     def __str__(self):
-        return self.post_descr
+        return self.position_descr
 
 class Users(models.Model):
-    usr = models.AutoField(primary_key=True, editable=False)
+    user = models.AutoField(primary_key=True, editable=False)
     usr_fio = models.CharField(max_length=128, blank=False)
     usr_sex = models.CharField(max_length=1, choices=[('m', 'male'), ('f', 'female')])
-    usr_post = models.ForeignKey('Posts', on_delete=models.SET_NULL ,null=True)
+    usr_position = models.ForeignKey('Positions', on_delete=models.SET_NULL ,null=True)
     
     def __str__(self):
         return self.usr_fio
